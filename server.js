@@ -1,0 +1,216 @@
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+const compression = require("compression");
+const morgan = require("morgan");
+const { v4: uuidv4 } = require("uuid");
+
+const { askAI } = require("./services/aiservices");
+const { createOrder } = require("./services/cashfreeservices");
+const { sendResetMail } = require("./services/mailservices");
+const { uploadToS3, getSignedUrl } = require("./services/s3service");
+
+const sequelize = require("./connection/dbconnection");
+const User = require("./models/users");
+const Expense = require("./models/expense");
+const Order = require("./models/orders");
+const ForgotPasswordRequest = require("./models/forgetpassword");
+
+const app = express();
+
+/* ================= MIDDLEWARE ================= */
+app.use(cors());
+app.use(express.json());
+app.use(compression());
+app.use(morgan("combined"));
+
+/* ================= RELATIONS ================= */
+User.hasMany(Expense);
+Expense.belongsTo(User);
+
+User.hasMany(Order);
+Order.belongsTo(User);
+
+User.hasMany(ForgotPasswordRequest);
+ForgotPasswordRequest.belongsTo(User);
+
+/* ================= DB ================= */
+sequelize.sync()
+  .then(() => console.log("Database synced"))
+  .catch(err => console.error("DB Sync Error:", err));
+
+/* ================= HELPER (CSV) ================= */
+function expensesToCSV(expenses) {
+  const header = "Amount,Description,Category,CreatedAt";
+  const rows = expenses.map(e =>
+    `${e.amount},${e.description},${e.category},${e.createdAt}`
+  );
+  return [header, ...rows].join("\n");
+}
+
+/* ================= AUTH ================= */
+app.post("/signup", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const exists = await User.findOne({ where: { email } });
+    if (exists) return res.status(409).json("User already exists");
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      email,
+      password: hash,
+      isPremium: false,
+      totalExpense: 0
+    });
+
+    res.json("Signup successful");
+  } catch {
+    res.status(500).json("Signup failed");
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json("User not found");
+
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(401).json("Wrong password");
+
+    res.json({ email: user.email, isPremium: user.isPremium });
+  } catch {
+    res.status(500).json("Login failed");
+  }
+});
+
+app.get("/user/status/:email", async (req, res) => {
+  const user = await User.findOne({ where: { email: req.params.email } });
+  res.json({ isPremium: user ? user.isPremium : false });
+});
+
+/* ================= EXPENSE ================= */
+app.post("/expense", async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { email, amount, description, category } = req.body;
+
+    const user = await User.findOne({ where: { email }, transaction: t });
+    if (!user) throw new Error("User not found");
+
+    await Expense.create(
+      { amount, description, category, UserId: user.id },
+      { transaction: t }
+    );
+
+    user.totalExpense += Number(amount);
+    await user.save({ transaction: t });
+
+    await t.commit();
+    res.json("Expense added");
+  } catch {
+    await t.rollback();
+    res.status(500).json("Failed to add expense");
+  }
+});
+
+app.get("/expense/:email", async (req, res) => {
+  const user = await User.findOne({
+    where: { email: req.params.email },
+    include: Expense
+  });
+  res.json(user ? user.Expenses : []);
+});
+
+app.delete("/expense/:email/:index", async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const user = await User.findOne({
+      where: { email: req.params.email },
+      include: Expense,
+      transaction: t
+    });
+
+    const expense = user.Expenses[req.params.index];
+
+    user.totalExpense -= Number(expense.amount);
+    await user.save({ transaction: t });
+    await expense.destroy({ transaction: t });
+
+    await t.commit();
+    res.json("Deleted");
+  } catch {
+    await t.rollback();
+    res.status(500).json("Delete failed");
+  }
+});
+
+/* ================= PREMIUM DOWNLOAD (CSV) ================= */
+app.get("/expense/download/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user.isPremium) return res.status(401).json({ message: "Not premium user" });
+
+    const expenses = await Expense.findAll({
+      where: { UserId: user.id }
+    });
+
+    if (!expenses.length) {
+      return res.status(400).json({ message: "No expenses found" });
+    }
+
+    // ✅ Convert to CSV
+    const csvData = expensesToCSV(expenses);
+
+    const fileName = `expenses/${email}-${Date.now()}.csv`;
+
+    // Upload CSV
+    await uploadToS3(csvData, fileName);
+
+    // Signed URL
+    const signedUrl = getSignedUrl(fileName);
+
+    res.status(200).json({ fileURL: signedUrl });
+
+  } catch (err) {
+    console.error("Download error:", err);
+    res.status(500).json({ message: "Download failed" });
+  }
+});
+
+/* ================= FORGOT PASSWORD ================= */
+app.post("/password/forgotpassword", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const request = await ForgotPasswordRequest.create({
+      id: uuidv4(),
+      UserId: user.id,
+      isActive: true
+    });
+
+    const resetLink = `http://localhost:3000/password/resetpassword/${request.id}`;
+    await sendResetMail(email, resetLink);
+
+    res.json({ message: "Reset email sent" });
+  } catch {
+    res.status(500).json({ message: "Reset failed" });
+  }
+});
+
+/* ================= SERVER ================= */
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Server running on http://localhost:3000");
+});

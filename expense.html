@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense App</title>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+</head>
+<body>
+
+<h2>Add Expense</h2>
+
+<form id="expenseForm">
+    <input id="amount" placeholder="Amount spent" required>
+    <input id="description" placeholder="Description" required>
+    <select id="category">
+        <option>Food</option>
+        <option>Fuel</option>
+        <option>Movie</option>
+    </select>
+    <button>Add Expense</button>
+</form>
+
+<h3>Expenses</h3>
+
+<label>
+    Expenses per page:
+    <select id="rowsPerPageSelect">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="40">40</option>
+    </select>
+</label>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="expenseTable"></tbody>
+</table>
+
+<div style="margin-top:10px;">
+    <button id="prevPage">Prev</button>
+    <span id="pageInfo"></span>
+    <button id="nextPage">Next</button>
+</div>
+
+<hr>
+
+<h3>Ask AI</h3>
+<input id="aiQuestion" placeholder="Ask something..." style="width:300px">
+<button id="askAiBtn">Ask AI</button>
+<p id="aiAnswer"></p>
+
+<button id="premiumBtn">Buy Premium Membership</button>
+
+<h3 id="premiumMessage" style="display:none;">
+    You are a premium user now
+</h3>
+
+<button id="showLeaderboardBtn" style="display:none;">
+    Show Leaderboard
+</button>
+
+<button id="downloadBtn" style="display:none;">
+    Download Expenses
+</button>
+<p id="downloadLink"></p>
+
+<ul id="leaderboard"></ul>
+
+<script src="expense.js"></script>
+</body>
+</html>
