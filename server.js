@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -25,6 +26,7 @@ app.use(cors());
 app.use(express.json());
 app.use(compression());
 app.use(morgan("combined"));
+app.use(express.static(path.join(__dirname)));
 
 /* ================= RELATIONS ================= */
 User.hasMany(Expense);
@@ -210,7 +212,12 @@ app.post("/password/forgotpassword", async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
 /* ================= SERVER ================= */
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
