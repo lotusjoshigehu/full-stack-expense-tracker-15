@@ -6,7 +6,7 @@ document.getElementById("forgotForm").addEventListener("submit", async (e) => {
 
     try {
         const res = await axios.post(
-            "http://localhost:3000/password/forgotpassword",
+            "/password/forgotpassword",
             { email }
         );
 
@@ -18,3 +18,4 @@ document.getElementById("forgotForm").addEventListener("submit", async (e) => {
         msg.style.color = "red";
     }
 });
+
