@@ -37,7 +37,7 @@ let rowsPerPage = Number(localStorage.getItem("rowsPerPage")) || 10;
 if (rowsSelect) rowsSelect.value = rowsPerPage;
 
 // ================= CHECK PREMIUM =================
-fetch(`user/status/${email}`)
+fetch(`/user/status/${email}`)
     .then(res => res.json())
     .then(data => {
         if (data.isPremium) {
@@ -216,5 +216,6 @@ if (askAiBtn) {
         aiAnswer.textContent = data.answer;
     });
 }
+
 
 
