@@ -37,7 +37,7 @@ let rowsPerPage = Number(localStorage.getItem("rowsPerPage")) || 10;
 if (rowsSelect) rowsSelect.value = rowsPerPage;
 
 // ================= CHECK PREMIUM =================
-fetch(`/${email}`)
+fetch(`user/status/${email}`)
     .then(res => res.json())
     .then(data => {
         if (data.isPremium) {
@@ -50,7 +50,7 @@ fetch(`/${email}`)
     });
 
 // ================= LOAD EXPENSES =================
-fetch(`/${email}`)
+fetch(`/expense/${email}`)
     .then(res => res.json())
     .then(data => {
         expenses = data;
@@ -137,7 +137,7 @@ if (expenseForm) {
 
 // ================= DELETE EXPENSE =================
 function deleteExpense(index) {
-    fetch(`/${email}/${index}`, {
+    fetch(`/expense/${email}/${index}`, {
         method: "DELETE"
     }).then(() => location.reload());
 }
@@ -181,7 +181,7 @@ if (downloadBtn) {
     downloadBtn.addEventListener("click", async () => {
         try {
             const res = await fetch(
-                `/${email}`
+                `/expense/download/${email}`
             );
 
             if (res.status === 401) {
@@ -216,4 +216,5 @@ if (askAiBtn) {
         aiAnswer.textContent = data.answer;
     });
 }
+
 
