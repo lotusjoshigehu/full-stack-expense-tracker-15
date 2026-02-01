@@ -37,7 +37,7 @@ let rowsPerPage = Number(localStorage.getItem("rowsPerPage")) || 10;
 if (rowsSelect) rowsSelect.value = rowsPerPage;
 
 // ================= CHECK PREMIUM =================
-fetch(`http://localhost:3000/user/status/${email}`)
+fetch(`/${email}`)
     .then(res => res.json())
     .then(data => {
         if (data.isPremium) {
@@ -50,7 +50,7 @@ fetch(`http://localhost:3000/user/status/${email}`)
     });
 
 // ================= LOAD EXPENSES =================
-fetch(`http://localhost:3000/expense/${email}`)
+fetch(`/${email}`)
     .then(res => res.json())
     .then(data => {
         expenses = data;
@@ -122,7 +122,7 @@ if (expenseForm) {
     expenseForm.addEventListener("submit", e => {
         e.preventDefault();
 
-        fetch("http://localhost:3000/expense", {
+        fetch("/expense", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -137,7 +137,7 @@ if (expenseForm) {
 
 // ================= DELETE EXPENSE =================
 function deleteExpense(index) {
-    fetch(`http://localhost:3000/expense/${email}/${index}`, {
+    fetch(`/${email}/${index}`, {
         method: "DELETE"
     }).then(() => location.reload());
 }
@@ -145,7 +145,7 @@ function deleteExpense(index) {
 // ================= LEADERBOARD =================
 if (leaderboardBtn) {
     leaderboardBtn.addEventListener("click", async () => {
-        const res = await fetch("http://localhost:3000/premium/showleaderboard");
+        const res = await fetch("/premium/showleaderboard");
         const data = await res.json();
 
         leaderboardList.innerHTML = "";
@@ -162,7 +162,7 @@ if (premiumBtn) {
     const cashfree = Cashfree({ mode: "sandbox" });
 
     premiumBtn.addEventListener("click", async () => {
-        const res = await fetch("http://localhost:3000/create-order", {
+        const res = await fetch("/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email })
@@ -181,7 +181,7 @@ if (downloadBtn) {
     downloadBtn.addEventListener("click", async () => {
         try {
             const res = await fetch(
-                `http://localhost:3000/expense/download/${email}`
+                `/${email}`
             );
 
             if (res.status === 401) {
@@ -206,7 +206,7 @@ if (askAiBtn) {
     askAiBtn.addEventListener("click", async () => {
         if (!aiQuestion.value) return;
 
-        const res = await fetch("http://localhost:3000/ai/ask", {
+        const res = await fetch("/ai/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ question: aiQuestion.value })
@@ -216,3 +216,4 @@ if (askAiBtn) {
         aiAnswer.textContent = data.answer;
     });
 }
+
