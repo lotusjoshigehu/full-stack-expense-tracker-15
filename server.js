@@ -97,6 +97,24 @@ app.get("/user/status/:email", async (req, res) => {
   res.json({ isPremium: user ? user.isPremium : false });
 });
 
+app.post("/ai/ask", async (req, res) => {
+  try {
+    const { question } = req.body;
+
+    if (!question) {
+      return res.status(400).json({ message: "Question is required" });
+    }
+
+    const answer = await askAI(question);
+
+    res.status(200).json({ answer });
+  } catch (err) {
+    console.error("AI error:", err.message);
+    res.status(500).json({ message: "AI failed" });
+  }
+});
+
+
 /* ================= EXPENSE ================= */
 app.post("/expense", async (req, res) => {
   const t = await sequelize.transaction();
@@ -287,6 +305,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
