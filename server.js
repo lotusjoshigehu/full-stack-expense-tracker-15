@@ -189,6 +189,24 @@ app.get("/expense/download/:email", async (req, res) => {
   }
 });
 
+app.post("/create-order", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const order = await createOrder(user.id, email);
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Create order error:", err);
+    res.status(500).json({ message: "Order creation failed" });
+  }
+});
+
 /* ================= FORGOT PASSWORD ================= */
 app.post("/password/forgotpassword", async (req, res) => {
   try {
@@ -220,4 +238,5 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
