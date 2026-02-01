@@ -5,7 +5,7 @@ document.getElementById("signupForm").addEventListener("submit", function (e) {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    fetch("http://localhost:3000/signup", {
+    fetch("/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password })
@@ -23,3 +23,4 @@ document.getElementById("signupForm").addEventListener("submit", function (e) {
 function goToLogin() {
     window.location.href = "login.html";
 }
+
