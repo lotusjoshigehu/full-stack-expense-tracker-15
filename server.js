@@ -239,6 +239,32 @@ app.post("/password/forgotpassword", async (req, res) => {
   }
 });
 
+app.get("/payment-success", async (req, res) => {
+  try {
+    const { order_id } = req.query;
+
+    const order = await Order.findOne({ where: { orderId: order_id } });
+    if (!order) {
+      return res.send("Invalid order");
+    }
+
+    const user = await User.findByPk(order.UserId);
+
+    user.isPremium = true;
+    await user.save();
+
+    order.paymentStatus = "SUCCESS";
+    await order.save();
+
+    res.redirect("/expense.html");
+
+  } catch (err) {
+    console.error("Payment success error:", err.message);
+    res.send("Payment verification failed");
+  }
+});
+
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
@@ -247,6 +273,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
