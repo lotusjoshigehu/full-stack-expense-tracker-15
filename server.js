@@ -198,15 +198,22 @@ app.post("/create-order", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const order = await createOrder(user.id, email);
+    const orderData = await createOrder(user.id, email);
 
-    res.status(200).json(order);
+    await Order.create({
+      orderId: orderData.order_id,
+      paymentStatus: "PENDING",
+      UserId: user.id
+    });
+
+    res.status(200).json(orderData);
 
   } catch (err) {
     console.error("Create order failed:", err.response?.data || err.message);
     res.status(500).json({ message: "Order creation failed" });
   }
 });
+
 
 
 /* ================= FORGOT PASSWORD ================= */
@@ -240,6 +247,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
