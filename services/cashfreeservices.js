@@ -18,7 +18,8 @@ exports.createOrder = async (userId, email) => {
           customer_phone: "9999999999"
         },
         order_meta: {
-          return_url: `http://localhost:3000/payment-success?order_id=${orderId}`
+          return_url:
+            "http://3.110.159.154:3000/payment-success?order_id={order_id}"
         }
       },
       {
