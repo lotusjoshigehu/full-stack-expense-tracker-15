@@ -201,11 +201,13 @@ app.post("/create-order", async (req, res) => {
     const order = await createOrder(user.id, email);
 
     res.status(200).json(order);
+
   } catch (err) {
-    console.error("Create order error:", err);
+    console.error("Create order failed:", err.response?.data || err.message);
     res.status(500).json({ message: "Order creation failed" });
   }
 });
+
 
 /* ================= FORGOT PASSWORD ================= */
 app.post("/password/forgotpassword", async (req, res) => {
@@ -238,5 +240,6 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
