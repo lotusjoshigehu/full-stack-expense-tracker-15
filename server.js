@@ -6,7 +6,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const compression = require("compression");
 const morgan = require("morgan");
-const { v4: uuidv4 } = require("uuid/dist-node");
+const { v4: uuidv4 } = require("uuid");
 
 const { askAI } = require("./services/aiservices");
 const { createOrder } = require("./services/cashfreeservices");
@@ -305,6 +305,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
