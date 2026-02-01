@@ -153,6 +153,20 @@ app.delete("/expense/:email/:index", async (req, res) => {
   }
 });
 
+app.get("/premium/showleaderboard", async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ["name", "totalExpense"],
+      order: [["totalExpense", "DESC"]]
+    });
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.error("Leaderboard error:", err.message);
+    res.status(500).json({ message: "Failed to load leaderboard" });
+  }
+});
+
 /* ================= PREMIUM DOWNLOAD (CSV) ================= */
 app.get("/expense/download/:email", async (req, res) => {
   try {
@@ -273,6 +287,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
