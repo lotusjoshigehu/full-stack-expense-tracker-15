@@ -1,112 +1,48 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: #eef2f7;
-    padding: 40px;
-}
-
-/* Main Container */
-.container {
-    max-width: 1000px;
-    margin: auto;
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-}
-
-/* Headings */
-h2, h3 {
-    margin-bottom: 15px;
-    font-weight: 600;
-    color: #333;
+    font-family: Arial, sans-serif;
+    margin: 20px;
 }
 
 /* Form */
-#expenseForm {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 25px;
+#expenseForm input,
+#expenseForm select {
+    padding: 6px;
+    margin-right: 8px;
 }
 
-input, select {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    min-width: 150px;
-}
-
-input:focus, select:focus {
-    outline: none;
-    border-color: #4a90e2;
-}
-
-/* Buttons */
 button {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: #4a90e2;
-    color: white;
+    padding: 6px 10px;
     cursor: pointer;
-    font-weight: 500;
-    transition: 0.2s ease;
-}
-
-button:hover {
-    background: #357abd;
 }
 
 /* Table */
 table {
     width: 100%;
+    margin-top: 10px;
     border-collapse: collapse;
-    margin-top: 15px;
-    background: white;
 }
 
-th {
-    background: #4a90e2;
-    color: white;
-    padding: 12px;
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
     text-align: left;
 }
 
-td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-tr:hover {
-    background: #f5f9ff;
+th {
+    background-color: #f2f2f2;
 }
 
 /* Pagination */
 #prevPage, #nextPage {
-    background: #666;
-}
-
-#prevPage:hover, #nextPage:hover {
-    background: #444;
+    margin-top: 10px;
 }
 
 /* AI Section */
 #aiQuestion {
-    width: 60%;
-    margin-right: 10px;
+    padding: 6px;
+    width: 300px;
 }
 
 #aiAnswer {
     margin-top: 10px;
-    font-style: italic;
-    color: #555;
-}
-
-/* Premium */
-#premiumMessage {
-    color: green;
-    font-weight: bold;
-    margin-top: 15px;
 }
