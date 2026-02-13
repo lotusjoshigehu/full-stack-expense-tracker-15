@@ -303,51 +303,7 @@ app.get("/payment-success", async (req, res) => {
   }
 });
 
-app.get("/admin/delete-user/:email", async (req, res) => {
-  const t = await sequelize.transaction();
 
-  try {
-    const { email } = req.params;
-
-    const user = await User.findOne({
-      where: { email },
-      transaction: t
-    });
-
-    if (!user) {
-      await t.rollback();
-      return res.status(404).send("User not found");
-    }
-
-    // Delete related records first
-    await Expense.destroy({
-      where: { UserId: user.id },
-      transaction: t
-    });
-
-    await Order.destroy({
-      where: { UserId: user.id },
-      transaction: t
-    });
-
-    await ForgotPasswordRequest.destroy({
-      where: { UserId: user.id },
-      transaction: t
-    });
-
-    // Delete user
-    await user.destroy({ transaction: t });
-
-    await t.commit();
-
-    res.send(`User ${email} deleted successfully`);
-
-  } catch (err) {
-    await t.rollback();
-    console.error("Delete error:", err);
-    res.status(500).send("Delete failed");
-  }
-});
 
 
 app.get("/", (req, res) => {
