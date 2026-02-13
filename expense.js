@@ -1,11 +1,11 @@
-// ================= AUTH GUARD =================
+
 if (!localStorage.getItem("loggedIn")) {
     window.location.href = "login.html";
 }
 
 const email = localStorage.getItem("userEmail");
 
-// ================= DOM =================
+
 const table = document.getElementById("expenseTable");
 const premiumMsg = document.getElementById("premiumMessage");
 const leaderboardBtn = document.getElementById("showLeaderboardBtn");
@@ -29,14 +29,14 @@ const amount = document.getElementById("amount");
 const description = document.getElementById("description");
 const category = document.getElementById("category");
 
-// ================= PAGINATION STATE =================
+
 let expenses = [];
 let currentPage = 1;
 let rowsPerPage = Number(localStorage.getItem("rowsPerPage")) || 10;
 
 if (rowsSelect) rowsSelect.value = rowsPerPage;
 
-// ================= CHECK PREMIUM =================
+
 fetch(`/user/status/${email}`)
     .then(res => res.json())
     .then(data => {
@@ -49,7 +49,7 @@ fetch(`/user/status/${email}`)
         }
     });
 
-// ================= LOAD EXPENSES =================
+
 fetch(`/expense/${email}`)
     .then(res => res.json())
     .then(data => {
@@ -57,7 +57,7 @@ fetch(`/expense/${email}`)
         renderPage();
     });
 
-// ================= RENDER PAGE =================
+
 function renderPage() {
     if (!table) return;
 
@@ -87,7 +87,7 @@ function renderPage() {
     if (nextBtn) nextBtn.disabled = currentPage === totalPages;
 }
 
-// ================= PAGINATION EVENTS =================
+
 if (prevBtn) {
     prevBtn.onclick = () => {
         if (currentPage > 1) {
@@ -107,7 +107,6 @@ if (nextBtn) {
     };
 }
 
-// ================= ROWS PER PAGE =================
 if (rowsSelect) {
     rowsSelect.addEventListener("change", () => {
         rowsPerPage = Number(rowsSelect.value);
@@ -117,7 +116,7 @@ if (rowsSelect) {
     });
 }
 
-// ================= ADD EXPENSE =================
+
 if (expenseForm) {
     expenseForm.addEventListener("submit", e => {
         e.preventDefault();
@@ -135,14 +134,13 @@ if (expenseForm) {
     });
 }
 
-// ================= DELETE EXPENSE =================
+
 function deleteExpense(index) {
     fetch(`/expense/${email}/${index}`, {
         method: "DELETE"
     }).then(() => location.reload());
 }
 
-// ================= LEADERBOARD =================
 if (leaderboardBtn) {
     leaderboardBtn.addEventListener("click", async () => {
         const res = await fetch("/premium/showleaderboard");
@@ -157,7 +155,7 @@ if (leaderboardBtn) {
     });
 }
 
-// ================= BUY PREMIUM =================
+
 if (premiumBtn) {
     const cashfree = Cashfree({ mode: "sandbox" });
 
@@ -176,7 +174,7 @@ if (premiumBtn) {
     });
 }
 
-// ================= DOWNLOAD EXPENSES =================
+
 if (downloadBtn) {
     downloadBtn.addEventListener("click", async () => {
         try {
@@ -201,7 +199,7 @@ if (downloadBtn) {
     });
 }
 
-// ================= AI =================
+
 if (askAiBtn) {
     askAiBtn.addEventListener("click", async () => {
         if (!aiQuestion.value) return;
@@ -216,6 +214,7 @@ if (askAiBtn) {
         aiAnswer.textContent = data.answer;
     });
 }
+
 
 
 
