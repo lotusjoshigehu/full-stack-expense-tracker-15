@@ -1,7 +1,6 @@
 document.getElementById("loginForm").addEventListener("submit", async e => {
     e.preventDefault();
 
-    // ✅ correctly read input values
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
@@ -26,4 +25,5 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
 function goToSignup() {
     window.location.href = "signup.html";
 }
+
 
