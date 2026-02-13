@@ -21,14 +21,14 @@ const ForgotPasswordRequest = require("./models/forgetpassword");
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
+
 app.use(cors());
 app.use(express.json());
 app.use(compression());
 app.use(morgan("combined"));
 app.use(express.static(path.join(__dirname)));
 
-/* ================= RELATIONS ================= */
+
 User.hasMany(Expense);
 Expense.belongsTo(User);
 
@@ -38,7 +38,7 @@ Order.belongsTo(User);
 User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
 
-/* ================= DB ================= */
+
 sequelize.sync()
   .then(() => console.log("Database synced"))
   .catch(err => console.error("DB Sync Error:", err));
@@ -52,7 +52,7 @@ function expensesToCSV(expenses) {
   return [header, ...rows].join("\n");
 }
 
-/* ================= AUTH ================= */
+
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -115,7 +115,7 @@ app.post("/ai/ask", async (req, res) => {
 });
 
 
-/* ================= EXPENSE ================= */
+
 app.post("/expense", async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -185,7 +185,7 @@ app.get("/premium/showleaderboard", async (req, res) => {
   }
 });
 
-/* ================= PREMIUM DOWNLOAD (CSV) ================= */
+
 app.get("/expense/download/:email", async (req, res) => {
   try {
     const email = req.params.email;
@@ -202,15 +202,15 @@ app.get("/expense/download/:email", async (req, res) => {
       return res.status(400).json({ message: "No expenses found" });
     }
 
-    // ✅ Convert to CSV
+    
     const csvData = expensesToCSV(expenses);
 
     const fileName = `expenses/${email}-${Date.now()}.csv`;
 
-    // Upload CSV
+  
     await uploadToS3(csvData, fileName);
 
-    // Signed URL
+  
     const signedUrl = getSignedUrl(fileName);
 
     res.status(200).json({ fileURL: signedUrl });
@@ -248,7 +248,6 @@ app.post("/create-order", async (req, res) => {
 
 
 
-/* ================= FORGOT PASSWORD ================= */
 app.post("/password/forgotpassword", async (req, res) => {
   try {
     const { email } = req.body;
@@ -301,10 +300,10 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
 
-/* ================= SERVER ================= */
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
