@@ -44,5 +44,13 @@ th {
 }
 
 #aiAnswer {
+    white-space: pre-line;
     margin-top: 10px;
+    line-height: 1.6;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
 }
+
