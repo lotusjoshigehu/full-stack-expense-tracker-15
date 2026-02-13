@@ -303,6 +303,34 @@ app.get("/payment-success", async (req, res) => {
   }
 });
 
+app.get("/admin/delete-user/:email", async (req, res) => {
+  try {
+    const email = req.params.email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      where: sequelize.where(
+        sequelize.fn("LOWER", sequelize.col("email")),
+        email
+      )
+    });
+
+    if (!user) {
+      return res.send("User not found in database");
+    }
+
+    await Expense.destroy({ where: { UserId: user.id } });
+    await Order.destroy({ where: { UserId: user.id } });
+    await ForgotPasswordRequest.destroy({ where: { UserId: user.id } });
+
+    await user.destroy();
+
+    res.send(`User ${email} deleted successfully`);
+
+  } catch (err) {
+    console.error(err);
+    res.send("Error while deleting");
+  }
+});
 
 
 
@@ -316,6 +344,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
