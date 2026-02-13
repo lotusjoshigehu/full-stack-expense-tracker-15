@@ -148,28 +148,36 @@ app.get("/expense/:email", async (req, res) => {
   res.json(user ? user.Expenses : []);
 });
 
-app.delete("/expense/:email/:index", async (req, res) => {
+app.delete("/expense/:id", async (req, res) => {
   const t = await sequelize.transaction();
+
   try {
-    const user = await User.findOne({
-      where: { email: req.params.email },
-      include: Expense,
+    const expense = await Expense.findByPk(req.params.id, {
       transaction: t
     });
 
-    const expense = user.Expenses[req.params.index];
+    if (!expense) {
+      throw new Error("Expense not found");
+    }
+
+    const user = await User.findByPk(expense.UserId, {
+      transaction: t
+    });
 
     user.totalExpense -= Number(expense.amount);
     await user.save({ transaction: t });
+
     await expense.destroy({ transaction: t });
 
     await t.commit();
-    res.json("Deleted");
-  } catch {
+    res.json("Deleted successfully");
+
+  } catch (err) {
     await t.rollback();
     res.status(500).json("Delete failed");
   }
 });
+
 
 app.get("/premium/showleaderboard", async (req, res) => {
   try {
@@ -303,6 +311,7 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
 
 
 
